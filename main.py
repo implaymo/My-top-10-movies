@@ -106,7 +106,7 @@ def add():
             title=movie_selected["title"],
             year=movie_selected['release_date'].split('-')[0],
             description=movie_selected['overview'],
-            img_url=movie_selected['poster_path']
+            img_url=f'https://image.tmdb.org/t/p/original/{movie_selected["poster_path"]}'
 
         )
         db.session.add(new_movie)
