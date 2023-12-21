@@ -41,9 +41,13 @@ class NewMovie(FlaskForm):
 
 @app.route("/")
 def home():
-    movies = Movie.query.all()
+    result = db.session.execute(db.select(Movie).order_by(Movie.rating))
+    all_movies = result.scalars().all()
 
-    return render_template("index.html", movies=movies)
+    for i in range(len(all_movies)):
+        all_movies[i].ranking = len(all_movies) - i
+    db.session.commit()
+    return render_template("index.html", movies=all_movies)
 
 
 @app.route("/edit/<int:movie_id>", methods=['GET', 'POST'])
@@ -106,7 +110,7 @@ def add():
             title=movie_selected["title"],
             year=movie_selected['release_date'].split('-')[0],
             description=movie_selected['overview'],
-            img_url=f'https://image.tmdb.org/t/p/original/{movie_selected["poster_path"]}'
+            img_url=f'https://image.tmdb.org/t/p/original/{movie_selected["poster_path"]}',
 
         )
         db.session.add(new_movie)
@@ -130,6 +134,7 @@ def movie_details(movie_id):
     response = requests.get(url, headers=headers, params=params)
     response.raise_for_status()
     return response.json()
+
 
 
 if __name__ == '__main__':
